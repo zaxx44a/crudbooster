@@ -11,10 +11,6 @@ CRUDBooster is a Laravel CRUD Generator. With a new concept of scaffolding, very
 ## Support
 All issues, bugs or help are in one place, in [CRUDBoster Issues](https://github.com/crocodic-studio/crudbooster/issues). To request help or report a problem, centralize everything in the [CRUDBoster Issues](https://github.com/crocodic-studio/crudbooster/issues). Follow the guidelines in the "Using CRUDBooster Issues Page" session.
 
-## Donation
-Help us to keep CRUDBooster alive with some coffee. 
-[PayPal.Me/donateCRUDBooster](https://paypal.me/donateCRUDBooster). 
-
 ## Contribution
 
 All ways to contribute are welcome. 
@@ -65,11 +61,15 @@ If there is no interaction for a long period of time, it will be assumed that it
 5. Thanks To All [Developers](https://github.com/crocodic-studio/crudbooster/graphs/contributors)
 6. Thanks To All Funders
 
-## License 
-CRUDBooster is under [MIT License](https://opensource.org/licenses/MIT)
+## Donation
+Help us to keep CRUDBooster alive with some coffee. 
+[PayPal.Me/donateCRUDBooster](https://paypal.me/donateCRUDBooster). 
 
 ## Contact Us
 Email : crudbooster@gmail.com
+
+## License 
+CRUDBooster is under [MIT License](https://opensource.org/licenses/MIT)
 
 ### :star: Your Stars Make Us Do More :star:
 As always if you found this package useful and you want to encourage us to maintain and work on it. Just press the star button to declare your willing.
