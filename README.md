@@ -8,15 +8,12 @@
 # About CRUDBooster
 CRUDBooster is a Laravel CRUD Generator. With a new concept of scaffolding, very easy for the beginner and professional. It's easy to use, easy to custom, and very flexible. Don't limit your mind, CRUDBooster gives us a true flexibility to develop an app. You can utilize its built in CRUD Generator or even you just need for your master data only.
 
-## Let's Get Started
-### [Installation](/docs/en/installation.md)
-### [Documentation](/docs/en/index.md)
-
 ## Support
 All issues, bugs or help are in one place, in [CRUDBoster Issues](https://github.com/crocodic-studio/crudbooster/issues). To request help or report a problem, centralize everything in the [CRUDBoster Issues](https://github.com/crocodic-studio/crudbooster/issues). Follow the guidelines in the "Using CRUDBooster Issues Page" session.
 
-## Important Note To Developer
-Dear Developer, you are not end new user, to use CRUDBooster, **Laravel knowledge** is a must!, CRUDBooster is just an additional package **Laravel Framework** to help use more efficient in development. If you dont have a laravel knowledge, so nightmare will come to you :D. We can't help you as you want in every issues especially basic issues of web development instead you can find out in internet (stackoverflow or any other)
+## Donation
+Help us to keep CRUDBooster alive with some coffee. 
+[PayPal.Me/donateCRUDBooster](https://paypal.me/donateCRUDBooster). 
 
 ## Contribution
 
@@ -63,15 +60,16 @@ If there is no interaction for a long period of time, it will be assumed that it
 ## Credits
 1. Laravel Export HTML to Excel by [Maatwebsite](https://github.com/Maatwebsite/Laravel-Excel)
 2. Laravel DOM PDF by [Barryvdh](https://github.com/barryvdh/laravel-dompdf)
-3. Laravel Widgetize [ImanGhafoori](https://github.com/imanghafoori1/laravel-widgetize)
-4. Admin Theme by [AdminLTE Almsaeed Studio](https://almsaeedstudio.com/preview)
-5. Laravel Framework by [Taylor Otwell](https://github.com/laravel/laravel)
-6. Thanks To All [Developers](https://github.com/crocodic-studio/crudbooster/graphs/contributors)
-7. Thanks To All Funders
+3. Admin Theme by [AdminLTE Almsaeed Studio](https://almsaeedstudio.com/preview)
+4. Laravel Framework by [Taylor Otwell](https://github.com/laravel/laravel)
+5. Thanks To All [Developers](https://github.com/crocodic-studio/crudbooster/graphs/contributors)
+6. Thanks To All Funders
 
 ## License 
 CRUDBooster is under [MIT License](https://opensource.org/licenses/MIT)
 
+## Contact Us
+Email : crudbooster@gmail.com
 
 ### :star: Your Stars Make Us Do More :star:
 As always if you found this package useful and you want to encourage us to maintain and work on it. Just press the star button to declare your willing.
