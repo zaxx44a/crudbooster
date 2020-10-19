@@ -1,4 +1,4 @@
-<?php namespace crocodicstudio\crudbooster;
+<?php namespace Crocodic\CrudBooster;
 
 use crocodicstudio\crudbooster\commands\CrudboosterVersionCommand;
 use crocodicstudio\crudbooster\commands\Mailqueues;
@@ -21,13 +21,13 @@ class CRUDBoosterServiceProvider extends ServiceProvider
     public function boot()
     {        
                                 
-        $this->loadViewsFrom(__DIR__.'/views', 'crudbooster');
+        $this->loadViewsFrom(__DIR__ . '/views', 'crudbooster');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-        $this->loadTranslationsFrom(__DIR__.'/localization','crudbooster');
+        $this->loadTranslationsFrom(__DIR__ . '/Lang','crudbooster');
         $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if($this->app->runningInConsole()) {
-            $this->publishes([__DIR__.'/configs/crudbooster.php' => config_path('crudbooster.php')],'cb_config');
+            $this->publishes([__DIR__ . '/Configs/crudbooster.php' => config_path('crudbooster.php')],'cb_config');
             $this->publishes([__DIR__.'/userfiles/controllers/CBHook.php' => app_path('Http/Controllers/CBHook.php')],'CBHook');
             $this->publishes([__DIR__.'/userfiles/controllers/AdminCmsUsersController.php' => app_path('Http/Controllers/AdminCmsUsersController.php')],'cb_user_controller');
             $this->publishes([__DIR__.'/assets'=>public_path('vendor/crudbooster')],'cb_asset');
@@ -44,9 +44,9 @@ class CRUDBoosterServiceProvider extends ServiceProvider
      */
     public function register()
     {                                   
-        require __DIR__.'/helpers/Helper.php';      
+        require __DIR__ . '/helpers/Helper.php';
 
-        $this->mergeConfigFrom(__DIR__.'/configs/crudbooster.php','crudbooster');
+        $this->mergeConfigFrom(__DIR__ . '/Configs/crudbooster.php','crudbooster');
 
         $this->registerSingleton();
 
@@ -59,7 +59,7 @@ class CRUDBoosterServiceProvider extends ServiceProvider
         $loader->alias('PDF', 'Barryvdh\DomPDF\Facade');
         $loader->alias('Excel', 'Maatwebsite\Excel\Facades\Excel');
         $loader->alias('Image', 'Intervention\Image\Facades\Image');
-        $loader->alias('CRUDBooster', 'crocodicstudio\crudbooster\helpers\CRUDBooster');
+        $loader->alias('CRUDBooster', 'crocodicstudio\crudbooster\helpers\CB');
         $loader->alias('CB', 'crocodicstudio\crudbooster\helpers\CB');
     }
    

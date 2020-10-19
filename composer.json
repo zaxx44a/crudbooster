@@ -15,26 +15,29 @@
     "authors": [
         {
             "name": "Ferry",
-            "email": "ferry@crocodic.com"
+            "email": "ferry@crocodic.com",
+            "homepage": "https://crudbooster.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "php":"^7.2",
+        "laravel/framework":"^6.0|^7.0|^8.0",
         "barryvdh/laravel-dompdf": "0.8.*",
         "doctrine/dbal": "~2.3",
         "maatwebsite/excel": "^3.1",
-        "intervention/imagecache":"^2.3"
+        "intervention/imagecache":"^2.3",
+        "ext-fileinfo": "*"
     },
     "autoload": {
         "psr-4": {
-          "crocodicstudio\\crudbooster\\": "src/"
+          "Crocodic\\CrudBooster\\": "src/"
         }
       },
     "extra": {
         "laravel": {
             "providers": [
-                "crocodicstudio\\crudbooster\\CRUDBoosterServiceProvider"
+                "Crocodic\\CrudBooster\\CRUDBoosterServiceProvider"
             ]
         }
     }
