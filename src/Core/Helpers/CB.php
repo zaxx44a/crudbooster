@@ -4,7 +4,7 @@ namespace Crocodic\CrudBooster\Core\Helpers;
 
 class CB
 {
-    use FileHandle, DbOperation, CacheSupport;
+    use FileHandlingSupport, DbSupport, CacheSupport;
 
     public static function back($message, $type = 'warning')
     {

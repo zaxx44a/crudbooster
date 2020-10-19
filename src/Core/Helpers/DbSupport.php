@@ -7,7 +7,7 @@ namespace Crocodic\CrudBooster\Core\Helpers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-trait DbOperation
+trait DbSupport
 {
     /**
      * @param $table
@@ -24,7 +24,6 @@ trait DbOperation
 
     public static function insert($table, $data = [])
     {
-        $data['id'] = DB::table($table)->max('id') + 1;
         if (! $data['created_at']) {
             if (Schema::hasColumn($table, 'created_at')) {
                 $data['created_at'] = date('Y-m-d H:i:s');
@@ -38,38 +37,42 @@ trait DbOperation
         }
     }
 
+    /**
+     * @param $table
+     * @param $id
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|object|null
+     */
     public static function first($table, $id)
     {
-        $table = self::parseSqlTable($table)['table'];
         if (is_array($id)) {
-            $first = DB::table($table);
-            foreach ($id as $k => $v) {
-                $first->where($k, $v);
-            }
-
-            return $first->first();
+            return DB::table($table)->where($id)->first();
         } else {
-            $pk = self::pk($table);
-
+            $pk = static::findPrimaryKey($table);
             return DB::table($table)->where($pk, $id)->first();
         }
     }
 
-
+    /**
+     * @param $table
+     * @param $field
+     * @return bool|\Illuminate\Contracts\Cache\Repository|mixed
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Exception
+     */
     public static function isColumnNULL($table, $field)
     {
-        if (Cache::has('field_isNull_'.$table.'_'.$field)) {
-            return Cache::get('field_isNull_'.$table.'_'.$field);
+        if (cache()->has('field_isNull_'.$table.'_'.$field)) {
+            return cache()->get('field_isNull_'.$table.'_'.$field);
         }
 
         try {
             //MySQL & SQL Server
             $isNULL = DB::select(DB::raw("select IS_NULLABLE from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='$table' and COLUMN_NAME = '$field'"))[0]->IS_NULLABLE;
             $isNULL = ($isNULL == 'YES') ? true : false;
-            Cache::forever('field_isNull_'.$table.'_'.$field, $isNULL);
+            cache()->forever('field_isNull_'.$table.'_'.$field, $isNULL);
         } catch (\Exception $e) {
             $isNULL = false;
-            Cache::forever('field_isNull_'.$table.'_'.$field, $isNULL);
+            cache()->forever('field_isNull_'.$table.'_'.$field, $isNULL);
         }
 
         return $isNULL;
@@ -92,7 +95,11 @@ trait DbOperation
         return $type;
     }
 
-
+    /**
+     * @param $parentTable
+     * @param $childTable
+     * @return string
+     */
     public static function getForeignKey($parentTable, $childTable)
     {
         if (Schema::hasColumn($childTable, 'id_'.$parentTable)) {
@@ -102,6 +109,10 @@ trait DbOperation
         }
     }
 
+    /**
+     * @param $column
+     * @return false|string|null
+     */
     public static function getTableForeignKey($column)
     {
         $table = null;

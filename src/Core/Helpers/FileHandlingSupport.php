@@ -2,72 +2,64 @@
 
 namespace Crocodic\CrudBooster\Core\Helpers;
 
-trait FileHandle
+use Illuminate\Support\Facades\Storage;
+
+trait FileHandlingSupport
 {
-    public static function uploadBase64($value, $id = null)
+
+    /**
+     * @param $base64Data
+     * @param null $overrideFileName
+     * @return string
+     * @throws \Exception
+     */
+    public static function uploadBase64($base64Data, $overrideFileName = null)
     {
-        if (! self::myId()) {
-            $userID = 0;
-        } else {
-            $userID = self::myId();
-        }
-
-        if ($id) {
-            $userID = $id;
-        }
-
-        $filedata = base64_decode($value);
-        $f = finfo_open();
-        $mime_type = finfo_buffer($f, $filedata, FILEINFO_MIME_TYPE);
-        @$mime_type = explode('/', $mime_type);
-        @$mime_type = $mime_type[1];
-        if ($mime_type) {
-            $filePath = 'uploads/'.$userID.'/'.date('Y-m');
-            Storage::makeDirectory($filePath);
-            $filename = md5(str_random(5)).'.'.$mime_type;
-            if (Storage::put($filePath.'/'.$filename, $filedata)) {
-                self::resizeImage($filePath.'/'.$filename);
-
-                return $filePath.'/'.$filename;
+        $fileData = base64_decode($base64Data);
+        $fileInit = finfo_open();
+        $mime = finfo_buffer($fileInit, $fileData, FILEINFO_MIME_TYPE);
+        if($mime) {
+            $mimeType = explode('/', $mime);
+            $mimeType = $mimeType[1];
+            if ($mimeType) {
+                $filePath = 'uploads/' . date('Y-m');
+                Storage::makeDirectory($filePath);
+                $newFilename = ($overrideFileName) ?: md5(str_random(5)).'.'.$mimeType;
+                if (Storage::put($filePath.'/'.$newFilename, $fileData)) {
+                    static::resizeImage($filePath.'/'.$newFilename);
+                    return $filePath.'/'.$newFilename;
+                } else {
+                    throw new \Exception("System can't write file at $filePath");
+                }
+            } else {
+                throw new \Exception("System can't find mime type");
             }
+        } else {
+            throw new \Exception("System can't find mime type");
         }
     }
 
-    public static function uploadFile($name, $encrypt = false, $resize_width = null, $resize_height = null, $id = null)
+    public static function uploadFile($inputName, $overrideFileName = null, $encrypt = false)
     {
-        if (Request::hasFile($name)) {
-            if (! self::myId()) {
-                $userID = 0;
-            } else {
-                $userID = self::myId();
-            }
+        $file = request()->file($inputName);
+        $ext = $file->getClientOriginalExtension();
+        $filename = str_slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $fileSize = $file->getSize() / 1024;
+        $filePath = 'uploads/'.date('Y-m');
 
-            if ($id) {
-                $userID = $id;
-            }
+        //Create Directory Monthly
+        Storage::makeDirectory($filePath);
 
-            $file = Request::file($name);
-            $ext = $file->getClientOriginalExtension();
-            $filename = str_slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-            $filesize = $file->getClientSize() / 1024;
-            $file_path = 'uploads/'.$userID.'/'.date('Y-m');
+        if ($encrypt === true) {
+            $filename = md5(str_random(5)).'.'.$ext;
+        } else {
+            $filename = str_slug($filename, '_').'.'.$ext;
+        }
 
-            //Create Directory Monthly
-            Storage::makeDirectory($file_path);
+        if (Storage::putFileAs($filePath, $file, $filename)) {
+            self::resizeImage($file_path.'/'.$filename, $resize_width, $resize_height);
 
-            if ($encrypt == true) {
-                $filename = md5(str_random(5)).'.'.$ext;
-            } else {
-                $filename = str_slug($filename, '_').'.'.$ext;
-            }
-
-            if (Storage::putFileAs($file_path, $file, $filename)) {
-                self::resizeImage($file_path.'/'.$filename, $resize_width, $resize_height);
-
-                return $file_path.'/'.$filename;
-            } else {
-                return null;
-            }
+            return $file_path.'/'.$filename;
         } else {
             return null;
         }
