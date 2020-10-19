@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Schema;
 
 trait DbSupport
 {
+    public static function getListTable()
+    {
+        $database = config('database.connections.'.config('database.default').'.database');
+        try {
+            $tables = DB::select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = '".$database."'");
+        } catch (\Exception $e) {
+            $tables = [];
+        }
+
+        return $tables;
+    }
+
     /**
      * @param $table
      * @return mixed|null
