@@ -10,5 +10,22 @@ return [
     'log_try_create'=> 'Trying to create data :module but denied!',
     'log_try_read'=> 'Trying to access detail data :module but denied!',
     'log_try_update'=> 'Trying to update data :module but denied!',
-    'log_try_delete'=> 'Trying to delete data :module but denied!'
+    'log_try_delete'=> 'Trying to delete data :module but denied!',
+
+    'log_create_data'=> 'Add data :name at module :module',
+    'log_update_data'=> 'Edit data :name at module :module',
+    'log_delete_data'=> 'Delete data :name at module :module',
+
+    'button_save_more'=> 'Save & Add More',
+    'button_save'=> 'Save',
+
+    'data_has_been_created'=> 'The data has been created!',
+    'data_has_been_updated'=> 'The data has been updated!',
+    'data_has_been_deleted'=> 'The data has been deleted!',
+
+    'create'=> 'Create',
+    'read'=> 'Read',
+    'update'=> 'Update',
+    'delete'=> 'Delete',
+    'detail'=> 'Detail'
 ];

@@ -20,6 +20,10 @@ class CB
         return static::redirect(admin_path($to), $message, $type);
     }
 
+    public static function currentClass() {
+
+    }
+
     public static function currentMethod()
     {
         $action = str_replace("App\Http\Controllers", "", Route::currentRouteAction());

@@ -9,6 +9,7 @@ trait CbAttributes
     public $moduleName;
     public $table;
     public $primaryKey = 'id';
+    public $titleColumn = 'id';
 
     private $gridColumns = [];
     private $formColumns = [];

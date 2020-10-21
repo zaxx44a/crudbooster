@@ -147,4 +147,11 @@ class CbQuery
     {
         return $this->resultData;
     }
+
+    /**
+     * @return array
+     */
+    public function getGridColumns() {
+        return $this->gridColumns;
+    }
 }
