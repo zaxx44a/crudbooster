@@ -6,22 +6,28 @@ class CB
 {
     use FileHandlingSupport, DbSupport, CacheSupport;
 
-    public static function back($message, $type = 'warning')
+    public static function back($message, $type = 'warning', $force = false)
     {
-        return redirect()->back()->with(['message'=>$message,'type'=>$type]);
+        if($force) {
+            redirect()->back()->with(['message'=>$message,'type'=>$type])->send();
+            exit;
+        } else {
+            return redirect()->back()->with(['message'=>$message,'type'=>$type]);
+        }
     }
 
-    public static function redirect($to, $message, $type = 'success')
+    public static function redirect($to, $message, $type = 'success', $force = false)
     {
-        return redirect($to)->with(['message'=>$message,'type'=>$type]);
+        if($force) {
+            redirect($to)->with(['message'=>$message,'type'=>$type])->send();
+            exit;
+        } else {
+            return redirect($to)->with(['message'=>$message,'type'=>$type]);
+        }
     }
 
     public static function redirectAdmin($to, $message, $type = 'success') {
         return static::redirect(admin_path($to), $message, $type);
-    }
-
-    public static function currentClass() {
-
     }
 
     public static function currentMethod()

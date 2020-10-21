@@ -4,10 +4,7 @@ namespace Crocodic\CrudBooster\Core;
 
 use Crocodic\CrudBooster\Core\Helpers\CB;
 use Crocodic\CrudBooster\Core\Helpers\CbQuery;
-use Crocodic\CrudBooster\Modules\LogModule\Helpers\CbLogModule;
-use Crocodic\CrudBooster\Modules\RoleModule\Helpers\CbRoleModule;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -15,12 +12,15 @@ class CBController extends CbAbstract
 {
     use CbAttributes, CbHooks, CbExportImport, ControllerSupport, ValidatesRequests;
 
+    private $registryModules;
+
     public function __construct()
     {
         $this->middleware(function($request, $next) {
             $this->genericLoader();
             return $next($request);
         });
+        $this->registryModules = app("CbModuleRegistry")->getModules();
     }
 
     public function genericLoader()
@@ -62,12 +62,16 @@ class CBController extends CbAbstract
             if(isset($gridColumn['validation'])) {
                 $rules[$gridColumn['column']] = $gridColumn['validation'];
             }
+            foreach($this->registryModules as $moduleRegistry) {
+                /** @var ModuleRegistryAbstract $moduleRegistry */
+                $rules = $moduleRegistry->hookValidation($this, $rules);
+            }
         }
 
         $this->validate(request(),$rules);
     }
 
-    public function dataAssign($id = null)
+    public function dataAssign()
     {
         $data = [];
         foreach ($this->gridColumns as $gridColumn) {
@@ -75,6 +79,11 @@ class CBController extends CbAbstract
                 continue;
             }
             $data[ $gridColumn['column'] ] = request($gridColumn['column']);
+
+            foreach($this->registryModules as $moduleRegistry) {
+                /** @var ModuleRegistryAbstract $moduleRegistry */
+                $data = $moduleRegistry->hookDataCrudAssign($this, $data);
+            }
         }
 
         return $data;
@@ -82,9 +91,9 @@ class CBController extends CbAbstract
 
     public function getIndex()
     {
-        if(!CbRoleModule::canBrowse()) {
-            CbLogModule::logWarning(cb_lang('log_try_browse',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreBrowse($this);
         }
 
         $data = [];
@@ -96,14 +105,20 @@ class CBController extends CbAbstract
         $data['resultData'] = $query->getResultData();
         $data['totalData'] = $query->getTotalData();
 
+
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPostBrowse($this);
+        }
+
         return view("crudbooster::crud.index", $data);
     }
 
     public function getAdd()
     {
-        if(!CbRoleModule::canCreate()) {
-            CbLogModule::logWarning(cb_lang('log_try_create',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreCreate($this, []);
         }
 
         return view('crudbooster::crud.form');
@@ -111,9 +126,9 @@ class CBController extends CbAbstract
 
     public function postAddSave()
     {
-        if(!CbRoleModule::canCreate()) {
-            CbLogModule::logWarning(cb_lang('log_try_create',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreCreate($this, request()->all());
         }
 
         try {
@@ -132,7 +147,10 @@ class CBController extends CbAbstract
 
             $this->hookPostAdd($lastInsertId);
 
-            CbLogModule::logSuccess(cb_lang("log_create_data",['name'=>$data[$this->titleColumn],'module'=>$this->moduleName]));
+            foreach($this->registryModules as $moduleRegistry) {
+                /** @var ModuleRegistryAbstract $moduleRegistry */
+                $moduleRegistry->hookPostCreate($this, $data, $lastInsertId);
+            }
 
             if (request('return_url')) {
                 if (request('submit') == cb_lang('button_save_more')) {
@@ -156,9 +174,9 @@ class CBController extends CbAbstract
 
     public function getEdit($id)
     {
-        if(!CbRoleModule::canUpdate()) {
-            CbLogModule::logWarning(cb_lang('log_try_update',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreUpdate($this, request()->all(), $id);
         }
 
         $row = DB::table($this->table)
@@ -173,14 +191,14 @@ class CBController extends CbAbstract
 
     public function postEditSave($id)
     {
-        if(!CbRoleModule::canUpdate()) {
-            CbLogModule::logWarning(cb_lang('log_try_update',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreUpdate($this, request()->all(), $id);
         }
 
         try {
             $this->validation();
-            $data = $this->dataAssign($id);
+            $data = $this->dataAssign();
 
             if (CB::hasColumn($this->table, 'updated_at')) {
                 $data['updated_at'] = date('Y-m-d H:i:s');
@@ -192,7 +210,10 @@ class CBController extends CbAbstract
 
             $this->hookPostEdit($id);
 
-            CbLogModule::logSuccess(cb_lang("log_update_data",['name'=>$data[$this->titleColumn],'module'=>$this->moduleName]));
+            foreach($this->registryModules as $moduleRegistry) {
+                /** @var ModuleRegistryAbstract $moduleRegistry */
+                $moduleRegistry->hookPostUpdate($this, $id);
+            }
 
             if (request('return_url')) {
                 return CB::redirect(request('return_url'),cb_lang("data_has_been_updated"),'success');
@@ -209,14 +230,12 @@ class CBController extends CbAbstract
 
     public function getDelete($id)
     {
-        if(!CbRoleModule::canDelete()) {
-            CbLogModule::logWarning(cb_lang('log_try_delete',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreDelete($this, $id);
         }
 
         $row = DB::table($this->table)->where($this->primaryKey, $id)->first();
-
-        CbLogModule::logSuccess(cb_lang("log_delete_data",['name'=> $row->{$this->titleColumn},'module'=>$this->moduleName]));
 
         $this->hookPreDelete($id);
 
@@ -228,6 +247,11 @@ class CBController extends CbAbstract
 
         $this->hookPostDelete($id);
 
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPostDelete($this, $id);
+        }
+
         if(request('return_url')) {
             return CB::redirect(request('return_url'),cb_lang('data_has_been_deleted'),'success');
         } else {
@@ -237,12 +261,17 @@ class CBController extends CbAbstract
 
     public function getDetail($id)
     {
-        if(!CbRoleModule::canRead()) {
-            CbLogModule::logWarning(cb_lang('log_try_read',['module'=>$this->moduleName]));
-            return view("CbLogModule::deny");
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPreRead($this, $id);
         }
 
         $row = DB::table($this->table)->where($this->primaryKey,$id)->first();
+
+        foreach($this->registryModules as $moduleRegistry) {
+            /** @var ModuleRegistryAbstract $moduleRegistry */
+            $moduleRegistry->hookPostRead($this, $id);
+        }
 
         return view('crudbooster::crud.detail', [
            'pageTitle'=> $this->moduleName.': '. cb_lang('detail').' - '. $row->{$this->titleColumn}

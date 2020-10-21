@@ -9,6 +9,20 @@ return [
     'ADMIN_PATH' => 'admin',
 
     /**
+     * Custom login credential columns
+     */
+    'USERNAME' => [
+        'column'=> 'email',
+        'label'=> 'Email',
+        'validation'=> 'required|email|exists:users'
+    ],
+    'PASSWORD' => [
+        'column'=> 'password',
+        'label'=> 'Password',
+        'validation'=> 'required|string'
+    ],
+
+    /**
      * Module Generator Settings
      */
     'IMAGE_FIELDS_CANDIDATE' => ['image','picture','photo','photos','foto','gambar','thumbnail'],

@@ -1,9 +1,8 @@
-<?php namespace Crocodic\CrudBooster\Modules\LogModule;
+<?php namespace Crocodic\CrudBooster\Modules\APIModule;
 
-use Crocodic\CrudBooster\Modules\RoleModule\CbRoleModuleRegistry;
 use Illuminate\Support\ServiceProvider;
 
-class CbRoleModuleServiceProvider extends ServiceProvider
+class CbAPIModuleServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -14,10 +13,11 @@ class CbRoleModuleServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__ . '/Views', 'CbLogModule');
+        $this->loadViewsFrom(__DIR__ . '/Views', 'CbApiModule');
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
-        $this->loadRoutesFrom(__DIR__ . '/role_module_routes.php');
-        app("CbModuleRegistry")->registerModule(CbRoleModuleRegistry::class);
+        $this->loadRoutesFrom(__DIR__ . '/api_module_routes.php');
+
+        app("CbModuleRegistry")->registerModule(CbApiModuleRegistry::class);
     }
 
     /**

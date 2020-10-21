@@ -1,7 +1,8 @@
 <?php namespace Crocodic\CrudBooster;
 
+use Crocodic\CrudBooster\Core\ModuleRegistry;
 use Crocodic\CrudBooster\Core\RuntimeCache;
-use Crocodic\CrudBooster\Modules\LogModule\CbRoleModuleServiceProvider;
+use Crocodic\CrudBooster\Modules\APIModule\CbAPIModuleServiceProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
@@ -45,7 +46,7 @@ class CRUDBoosterServiceProvider extends ServiceProvider
 
         $this->commands('CbInstall');
 
-        App::register(CbRoleModuleServiceProvider::class);
+        App::register(CbAPIModuleServiceProvider::class);
     }
    
     private function registerSingleton()
@@ -57,6 +58,10 @@ class CRUDBoosterServiceProvider extends ServiceProvider
 
         $this->app->singleton("RuntimeCache", function () {
             return new RuntimeCache;
+        });
+
+        $this->app->singleton("CbModuleRegistry", function() {
+            return new ModuleRegistry;
         });
 
         $this->app->singleton('CbInstall',function() {

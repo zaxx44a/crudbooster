@@ -3,6 +3,9 @@ return [
     'device_agent_invalid'=> 'The device is invalid!',
     'forbidden_access'=> 'Forbidden Access!',
     'please_login_for_first'=> 'Please login for first to continue!',
+    'see_you_later'=> 'Thank you and see you later!',
+    'credential_wrong'=> 'Sorry, your email and or password is wrong!',
+    'login'=> 'Login',
 
     'not_allowed_access'=> 'Sorry, you are not allowed to access this page!',
 

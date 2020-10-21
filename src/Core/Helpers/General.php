@@ -9,6 +9,29 @@
 |
 */
 
+if(!function_exists('cb_config')) {
+    /**
+     * @param $key
+     * @param null $default
+     * @return \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed
+     */
+    function cb_config($key, $default = null) {
+        return config('crudbooster.'.$key, $default);
+    }
+}
+
+if(!function_exists('force_view')) {
+    /**
+     * To force display a view when it called from a sub method
+     * @param $view
+     * @param $data
+     */
+    function force_view($view, $data = []) {
+        echo view($view, $data)->render();
+        exit;
+    }
+}
+
 if(!function_exists('admin_path')) {
     /**
      * @param null $suffix

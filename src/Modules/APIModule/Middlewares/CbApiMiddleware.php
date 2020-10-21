@@ -1,10 +1,10 @@
 <?php
 
-namespace Crocodic\CrudBooster\Core\Middlewares;
+namespace Crocodic\CrudBooster\Modules\APIModule\Middlewares;
 
 use Closure;
 
-class CBAuthAPI
+class CbApiMiddleware
 {
     /**
      * Handle an incoming request.

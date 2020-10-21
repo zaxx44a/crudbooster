@@ -1,11 +1,11 @@
 <?php
 
-namespace Crocodic\CrudBooster\Core\Middlewares;
+namespace Crocodic\CrudBooster\Modules\AuthModule\Middlewares;
 
 use Closure;
 use Crocodic\CrudBooster\Core\Helpers\CB;
 
-class CBBackend
+class CbAuthMiddleware
 {
     /**
      * Handle an incoming request.
@@ -17,7 +17,7 @@ class CBBackend
     public function handle($request, Closure $next)
     {
         if(auth()->guest()) {
-            return CB::redirect(admin_path('login'),cb_lang('please_Login_for_first'),'warning');
+            return CB::redirect(admin_path('login'),cb_lang('please_login_for_first'),'warning');
         }
 
         // Todo: Filter role permission middleware
