@@ -27,6 +27,12 @@ return [
      */
     'FILE_EXTENSION_ALLOWED' => ['doc','docx','xls','xlsx','csv','txt','pdf','zip','rar','gzip'],
     'IMAGE_EXTENSION_ALLOWED' => ['jpg','jpeg','png','gif','bmp','tiff'],
-    'MAX_UPLOAD_SIZE' => 1000,
+    'MAX_UPLOAD_SIZE' => 2000,
     'API_USER_AGENT_ALLOWED' => ['okhttp','android','ios','postman'],
+
+    /**
+     * Google API Key
+     */
+    'GOOGLE_FCM_KEY'=> null,
+    'GOOGLE_MAP_KEY'=> null,
 ];

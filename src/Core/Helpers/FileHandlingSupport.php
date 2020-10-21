@@ -3,7 +3,6 @@
 namespace Crocodic\CrudBooster\Core\Helpers;
 
 use Illuminate\Support\Facades\Storage;
-
 trait FileHandlingSupport
 {
 
@@ -17,6 +16,7 @@ trait FileHandlingSupport
     {
         $fileSize = ((strlen($base64Data) * (3/4)) - 2) / 1024;
         if($fileSize > config('crudbooster.MAX_UPLOAD_SIZE')) {
+            // Todo : Language
             throw new \Exception("File size can't more than ".config("crudbooster.MAX_UPLOAD_SIZE")." kb");
         }
 
@@ -33,12 +33,15 @@ trait FileHandlingSupport
                 if (Storage::put($filePath.'/'.$newFilename, $fileData)) {
                     return $filePath.'/'.$newFilename;
                 } else {
+                    // Todo : Language
                     throw new \Exception("System can't write file at $filePath");
                 }
             } else {
+                // Todo : Language
                 throw new \Exception("System can't find mime type");
             }
         } else {
+            // Todo : Language
             throw new \Exception("System can't find mime type");
         }
     }
@@ -55,6 +58,7 @@ trait FileHandlingSupport
         $file = request()->file($inputName);
         $fileSize = $file->getSize() / 1024;
         if($fileSize > config('crudbooster.MAX_UPLOAD_SIZE')) {
+            // Todo : Language
             throw new \Exception("File size can't more than ".config("crudbooster.MAX_UPLOAD_SIZE"). " kb");
         }
 
@@ -78,6 +82,7 @@ trait FileHandlingSupport
         if (Storage::putFileAs($filePath, $file, $filename)) {
             return $filePath.'/'.$filename;
         } else {
+            // Todo : Language
             throw new \Exception("System can't write file to $filePath");
         }
     }

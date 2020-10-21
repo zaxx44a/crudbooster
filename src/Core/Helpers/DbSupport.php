@@ -9,7 +9,26 @@ use Illuminate\Support\Facades\Schema;
 
 trait DbSupport
 {
-    public static function getListTable()
+    /**
+     * @param $table
+     * @return \Illuminate\Cache\CacheManager|\Illuminate\Contracts\Foundation\Application|mixed
+     * @throws \Exception
+     */
+    public static function getTableColumns($table)
+    {
+        if($columns = cache("table_columns_$table")) {
+            return $columns;
+        } else {
+            $columns = DB::getSchemaBuilder()->getColumnListing($table);
+            cache()->put('table_columns_'.$table, $columns, 3600);
+            return $columns;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public static function getTables()
     {
         $database = config('database.connections.'.config('database.default').'.database');
         try {
@@ -34,19 +53,43 @@ trait DbSupport
         return $pk->getColumns()[0];
     }
 
+    /**
+     * @param $table
+     * @param $column
+     * @return bool|\Illuminate\Cache\CacheManager|\Illuminate\Contracts\Foundation\Application|mixed
+     * @throws \Exception
+     */
+    public static function hasColumn($table, $column) {
+        if($value = cache('has_column_'.$table.'_'.$column)) {
+            return $value;
+        } else {
+            $value = Schema::hasColumn($table, $column);
+            cache()->put('has_column_'.$table.'_'.$column, $value, 3600);
+            return $value;
+        }
+    }
+
+    /**
+     * @param $table
+     * @param array $data
+     * @return false|mixed
+     * @throws \Exception
+     */
     public static function insert($table, $data = [])
     {
-        if (! $data['created_at']) {
-            if (Schema::hasColumn($table, 'created_at')) {
+        if (! isset($data['created_at'])) {
+            if (static::hasColumn($table, 'created_at')) {
                 $data['created_at'] = date('Y-m-d H:i:s');
             }
         }
 
-        if (DB::table($table)->insert($data)) {
-            return $data['id'];
+        if(isset($data[static::findPrimaryKey($table)])) {
+            $lastInsertId = $data[static::findPrimaryKey($table)];
         } else {
-            return false;
+            $lastInsertId = DB::table($table)->insertGetId($data);
         }
+
+        return $lastInsertId;
     }
 
     /**
@@ -57,10 +100,22 @@ trait DbSupport
     public static function first($table, $id)
     {
         if (is_array($id)) {
-            return DB::table($table)->where($id)->first();
+            if($value = app("RuntimeCache")->get("first_".$table."_".md5(serialize($id)))) {
+                return $value;
+            } else {
+                $value = DB::table($table)->where($id)->first();
+                app("RuntimeCache")->put("first_".$table."_".md5(serialize($id)), $value);
+                return $value;
+            }
         } else {
-            $pk = static::findPrimaryKey($table);
-            return DB::table($table)->where($pk, $id)->first();
+            if($value = app("RuntimeCache")->get("first_".$table."_".$id)) {
+                return $value;
+            } else {
+                $pk = static::findPrimaryKey($table);
+                $value = DB::table($table)->where($pk, $id)->first();
+                app("RuntimeCache")->put("first_".$table."_".$id, $value);
+                return $value;
+            }
         }
     }
 

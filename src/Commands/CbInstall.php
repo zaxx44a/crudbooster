@@ -1,14 +1,9 @@
-<?php namespace crocodicstudio\crudbooster\commands;
+<?php namespace Crocodic\CrudBooster\Commands;
 
-use App;
-use Cache;
-use CRUDBooster;
-use DB;
-use Illuminate\Console\Command;
-use Request;
+use Illuminate\Console\Command;;
 use Symfony\Component\Process\Process;
 
-class CrudboosterInstallationCommand extends Command
+class CbInstall extends Command
 {
     /**
      * The console command name.
@@ -41,7 +36,7 @@ class CrudboosterInstallationCommand extends Command
         if ($this->confirm('Do you have setting the database configuration at .env ?')) {
 
             if (! file_exists(public_path('vendor'))) {
-                mkdir(public_path('vendor'), 0777);
+                mkdir(public_path('vendor'));
             }
 
             $this->info('Publishing crudbooster assets...');
@@ -56,8 +51,9 @@ class CrudboosterInstallationCommand extends Command
             $this->call('migrate');
 
             if (! class_exists('CBSeeder')) {
-                require_once __DIR__.'/../database/seeds/CBSeeder.php';
+                require_once __DIR__ . '/../Database/Seeds/CBSeeder.php';
             }
+
             $this->call('db:seed', ['--class' => 'CBSeeder']);
             $this->call('config:clear');
             if (app()->version() < 5.6) {
@@ -107,41 +103,6 @@ class CrudboosterInstallationCommand extends Command
             $system_failed++;
         }
 
-        if (extension_loaded('mbstring')) {
-            $this->info('Mbstring extension: [Good]');
-        } else {
-            $this->info('Mbstring extension: [Bad]');
-            $system_failed++;
-        }
-
-        if (extension_loaded('openssl')) {
-            $this->info('OpenSSL extension: [Good]');
-        } else {
-            $this->info('OpenSSL extension: [Bad]');
-            $system_failed++;
-        }
-
-        if (extension_loaded('pdo')) {
-            $this->info('PDO extension: [Good]');
-        } else {
-            $this->info('PDO extension: [Bad]');
-            $system_failed++;
-        }
-
-        if (extension_loaded('tokenizer')) {
-            $this->info('Tokenizer extension: [Good]');
-        } else {
-            $this->info('Tokenizer extension: [Bad]');
-            $system_failed++;
-        }
-
-        if (extension_loaded('xml')) {
-            $this->info('XML extension: [Good]');
-        } else {
-            $this->info('XML extension: [Bad]');
-            $system_failed++;
-        }
-
         if (extension_loaded('gd')) {
             $this->info('GD extension: [Good]');
         } else {
@@ -175,7 +136,6 @@ class CrudboosterInstallationCommand extends Command
         $this->info('--');
         $this->info('Homepage : http://www.crudbooster.com');
         $this->info('Github : https://github.com/crocodic-studio/crudbooster');
-        $this->info('Documentation : https://github.com/crocodic-studio/crudbooster/blob/master/docs/en/index.md');
         $this->info('====================================================================');
         if ($success == true) {
             $this->info('------------------- :===: Completed !! :===: ------------------------');

@@ -1,13 +1,10 @@
 <?php namespace Crocodic\CrudBooster;
 
-use crocodicstudio\crudbooster\commands\CrudboosterVersionCommand;
-use crocodicstudio\crudbooster\commands\Mailqueues;
+use Crocodic\CrudBooster\Core\RuntimeCache;
+use Crocodic\CrudBooster\Modules\LogModule\CbRoleModuleServiceProvider;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use crocodicstudio\crudbooster\commands\CrudboosterInstallationCommand;
-use crocodicstudio\crudbooster\commands\CrudboosterUpdateCommand;
-use Illuminate\Foundation\AliasLoader;
-use App;
 
 class CRUDBoosterServiceProvider extends ServiceProvider
 {
@@ -22,15 +19,13 @@ class CRUDBoosterServiceProvider extends ServiceProvider
     {        
                                 
         $this->loadViewsFrom(__DIR__ . '/views', 'crudbooster');
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         $this->loadTranslationsFrom(__DIR__ . '/Lang','crudbooster');
         $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if($this->app->runningInConsole()) {
             $this->publishes([__DIR__ . '/Configs/crudbooster.php' => config_path('crudbooster.php')],'cb_config');
-            $this->publishes([__DIR__.'/userfiles/controllers/CBHook.php' => app_path('Http/Controllers/CBHook.php')],'CBHook');
-            $this->publishes([__DIR__.'/userfiles/controllers/AdminCmsUsersController.php' => app_path('Http/Controllers/AdminCmsUsersController.php')],'cb_user_controller');
-            $this->publishes([__DIR__.'/assets'=>public_path('vendor/crudbooster')],'cb_asset');
+            $this->publishes([__DIR__ . '/Assets' =>public_path('vendor/crudbooster')],'cb_asset');
         }
 
         $this->customValidation();
@@ -43,24 +38,14 @@ class CRUDBoosterServiceProvider extends ServiceProvider
      * @return void
      */
     public function register()
-    {                                   
-        require __DIR__ . '/helpers/Helper.php';
-
+    {
         $this->mergeConfigFrom(__DIR__ . '/Configs/crudbooster.php','crudbooster');
 
         $this->registerSingleton();
 
-        $this->commands('crudboosterinstall');
-        $this->commands('crudboosterupdate');
-        $this->commands('crudboosterVersionCommand');
-        $this->commands('crudboosterMailQueue');
+        $this->commands('CbInstall');
 
-        $loader = AliasLoader::getInstance();
-        $loader->alias('PDF', 'Barryvdh\DomPDF\Facade');
-        $loader->alias('Excel', 'Maatwebsite\Excel\Facades\Excel');
-        $loader->alias('Image', 'Intervention\Image\Facades\Image');
-        $loader->alias('CRUDBooster', 'crocodicstudio\crudbooster\helpers\CB');
-        $loader->alias('CB', 'crocodicstudio\crudbooster\helpers\CB');
+        App::register(CbRoleModuleServiceProvider::class);
     }
    
     private function registerSingleton()
@@ -70,20 +55,12 @@ class CRUDBoosterServiceProvider extends ServiceProvider
             return true;
         });
 
-        $this->app->singleton('crudboosterinstall',function() {
-            return new CrudboosterInstallationCommand;
-        });
-        
-        $this->app->singleton('crudboosterupdate',function() {
-            return new CrudboosterUpdateCommand;
+        $this->app->singleton("RuntimeCache", function () {
+            return new RuntimeCache;
         });
 
-        $this->app->singleton("crudboosterVersionCommand", function() {
-            return new CrudboosterVersionCommand;
-        });
-
-        $this->app->singleton("crudboosterMailQueue", function() {
-            return new Mailqueues;
+        $this->app->singleton('CbInstall',function() {
+            return new \Crocodic\CrudBooster\Commands\CbInstall;
         });
     }
 

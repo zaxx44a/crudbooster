@@ -27,12 +27,17 @@
         "doctrine/dbal": "~2.3",
         "maatwebsite/excel": "^3.1",
         "intervention/imagecache":"^2.3",
-        "ext-fileinfo": "*"
+        "ext-fileinfo": "*",
+        "ext-curl": "*",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {
           "Crocodic\\CrudBooster\\": "src/"
-        }
+        },
+        "files": [
+            "Core/Helpers/General.php"
+        ]
       },
     "extra": {
         "laravel": {

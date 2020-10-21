@@ -16,6 +16,10 @@ class CB
         return redirect($to)->with(['message'=>$message,'type'=>$type]);
     }
 
+    public static function redirectAdmin($to, $message, $type = 'success') {
+        return static::redirect(admin_path($to), $message, $type);
+    }
+
     public static function currentMethod()
     {
         $action = str_replace("App\Http\Controllers", "", Route::currentRouteAction());
@@ -96,14 +100,12 @@ class CB
         return true;
     }
 
-    public static function sendFCM($regID = [], $data)
+    public static function sendFCM(array $regID, $data)
     {
         if (! $data['title'] || ! $data['content']) {
-            return 'title , content null !';
+            throw new \Exception('Please fill title and content parameter!', 400);
         }
 
-        $apikey = CB::getSetting('google_fcm_key');
-        $url = 'https://fcm.googleapis.com/fcm/send';
         $fields = [
             'registration_ids' => $regID,
             'data' => $data,
@@ -117,44 +119,23 @@ class CB
             'priority' => 'high',
         ];
         $headers = [
-            'Authorization:key='.$apikey,
+            'Authorization:key='.config('crudbooster.GOOGLE_FCM_KEY'),
             'Content-Type:application/json',
         ];
 
-        $ch = curl_init($url);
+        $ch = curl_init('https://fcm.googleapis.com/fcm/send');
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $chresult = curl_exec($ch);
+        $result = curl_exec($ch);
         curl_close($ch);
-
-        return $chresult;
+        return $result;
     }
 
-    public static function getTableColumns($table)
-    {
-        //$cols = DB::getSchemaBuilder()->getColumnListing($table);
-        $table = CB::parseSqlTable($table);
-        $cols = collect(DB::select('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = :database AND TABLE_NAME = :table', [
-            'database' => $table['database'],
-            'table' => $table['table'],
-        ]))->map(function ($x) {
-            return (array) $x;
-        })->toArray();
 
-        $result = [];
-        $result = $cols;
-
-        $new_result = [];
-        foreach ($result as $ro) {
-            $new_result[] = $ro['COLUMN_NAME'];
-        }
-
-        return $new_result;
-    }
 
     public static function getNameTable($columns)
     {

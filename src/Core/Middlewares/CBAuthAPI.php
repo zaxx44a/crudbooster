@@ -29,22 +29,19 @@ class CBAuthAPI
                 }
             }
             if ($userAgentValid == false) {
-                $result['api_status'] = 0;
-                $result['api_message'] = "THE DEVICE AGENT IS INVALID";
-                $res = response()->json($result, 400);
-                $res->send();
-                exit;
+                return response()->json([
+                    'status'=> 0,
+                    'message'=> cb_lang('device_agent_invalid')
+                ],403);
             }
         }
 
         $accessToken = ltrim($authorization,"Bearer ");
-        $accessTokenData = Cache::get("api_token_".$accessToken);
-        if(!$accessTokenData) {
-            response()->json([
-                'api_status'=> 0,
-                'api_message'=> 'Forbidden Access!'
-            ], 403)->send();
-            exit;
+        if(!cache("api_token_".$accessToken)) {
+            return response()->json([
+                'status'=> 0,
+                'message'=> cb_lang('forbidden_access')
+            ]);
         }
 
         return $next($request);
