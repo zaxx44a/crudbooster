@@ -6,6 +6,7 @@ return [
     'see_you_later'=> 'Thank you and see you later!',
     'credential_wrong'=> 'Sorry, your email and or password is wrong!',
     'login'=> 'Login',
+    'import_data'=> 'Import Data',
 
     'not_allowed_access'=> 'Sorry, you are not allowed to access this page!',
 

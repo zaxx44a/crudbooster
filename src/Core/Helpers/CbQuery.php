@@ -17,21 +17,28 @@ class CbQuery
     private $softDelete = true;
     private $gridColumns;
     private $orderBy;
-    private $cb;
+    private $hookQueryCallback;
 
-    private $resultData;
-    private $totalData;
-
-    public function __construct(CBController $cb) {
-        $this->table = $cb->table;
-        $this->gridColumns = $cb->_GetGridColumns();
-        $this->primaryKey = $cb->primaryKey;
-        $this->orderBy = $cb->orderBy;
-        $this->softDelete = $cb->softDelete;
-        $this->cb = $cb;
+    public function __construct(string $table, array $gridColumns, string $primaryKey, array $orderBy, bool $softDelete) {
+        $this->table = $table;
+        $this->gridColumns = $gridColumns;
+        $this->primaryKey = $primaryKey;
+        $this->orderBy = $orderBy;
+        $this->softDelete = $softDelete;
     }
 
-    public function execute(): void
+    /**
+     * @param callable $callback
+     */
+    public function hookQuery(callable $callback) {
+        $this->hookQueryCallback = $callback;
+    }
+
+    /**
+     * @return CbQueryExecute
+     * @throws \Exception
+     */
+    public function execute(): CbQueryExecute
     {
         $displayColumnArray = [];
 
@@ -101,7 +108,7 @@ class CbQuery
         }
 
         // CONDITION SECTION
-        $this->query = $this->cb->hookQuery($this->query);
+        $this->query = call_user_func($this->hookQueryCallback, $this->query);
 
         // PREPARE QUERY FOR TOTAL
         $queryTotal = clone $this->query;
@@ -128,30 +135,10 @@ class CbQuery
             $this->query->skip($offset);
         }
 
-        $this->resultData = $this->query->get();
-        $this->totalData = $queryTotal->count();
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotalData(): int
-    {
-        return $this->totalData;
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getResultData(): Collection
-    {
-        return $this->resultData;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGridColumns() {
-        return $this->gridColumns;
+        $cbQueryExecute = new CbQueryExecute();
+        $cbQueryExecute->setGridColumns($this->gridColumns);
+        $cbQueryExecute->setTotalData($queryTotal->count());
+        $cbQueryExecute->setResultData($this->query->get());
+        return $cbQueryExecute;
     }
 }

@@ -4,6 +4,7 @@ namespace Crocodic\CrudBooster\Core;
 
 use Crocodic\CrudBooster\Core\Helpers\CB;
 use Crocodic\CrudBooster\Core\Helpers\CbQuery;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -99,11 +100,14 @@ class CBController extends CbAbstract
         $data = [];
         $data['pageTitle'] = $this->moduleName;
 
-        $query = new CbQuery($this);
-        $query->execute();
-        $data['gridColumns'] = $query->getGridColumns();
-        $data['resultData'] = $query->getResultData();
-        $data['totalData'] = $query->getTotalData();
+        $query = new CbQuery($this->table, $this->_GetGridColumns(), $this->primaryKey, $this->orderBy, $this->softDelete);
+        $query->hookQuery(function(Builder $query) {
+            return $this->hookQuery($query);
+        });
+        $exec = $query->execute();
+        $data['gridColumns'] = $exec->getGridColumns();
+        $data['resultData'] = $exec->getResultData();
+        $data['totalData'] = $exec->getTotalData();
 
 
         foreach($this->registryModules as $moduleRegistry) {

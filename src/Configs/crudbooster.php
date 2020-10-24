@@ -9,7 +9,7 @@ return [
     'ADMIN_PATH' => 'admin',
 
     /**
-     * Custom login credential columns
+     * Login credential columns
      */
     'USERNAME' => [
         'column'=> 'email',
