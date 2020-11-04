@@ -46,11 +46,15 @@ trait DbSupport
      */
     public static function findPrimaryKey($table)
     {
+        if($pkField = cache("pk_".$table)) return $pkField;
+
         $pk = DB::getDoctrineSchemaManager()->listTableDetails($table)->getPrimaryKey();
         if(!$pk) {
             return null;
         }
-        return $pk->getColumns()[0];
+        $pkField = $pk->getColumns()[0];
+        cache()->forever("pk_".$table,$pkField);
+        return $pkField;
     }
 
     /**
@@ -169,7 +173,8 @@ trait DbSupport
      */
     public static function getForeignKey($parentTable, $childTable)
     {
-        if (Schema::hasColumn($childTable, 'id_'.$parentTable)) {
+        $columns = static::getTableColumns($childTable);
+        if (in_array('id_'.$parentTable, $columns)) {
             return 'id_'.$parentTable;
         } else {
             return $parentTable.'_id';

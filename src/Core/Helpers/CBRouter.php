@@ -1,9 +1,7 @@
 <?php
 
-namespace crocodicstudio\crudbooster\helpers;
+namespace Crocodic\CrudBooster\Core\Helpers;
 
-
-use crocodicstudio\crudbooster\middlewares\CBAuthAPI;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
